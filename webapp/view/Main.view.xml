@@ -1,0 +1,184 @@
+<mvc:View controllerName="id.apnv.app.xml2jsonui5.controller.Main"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:ce="sap.ui.codeeditor"
+    displayBlock="true"
+    height="100%">
+    <Page title="XML → JSON Converter" titleLevel="H1" class="sapUiResponsiveContentPadding"
+        floatingFooter="true">
+        <headerContent>
+            <Text text="SAP PI/PO REST adapter conversion rules, simulated in the browser"
+                class="appSubtitle" />
+            <ToolbarSpacer />
+            <Button text="Load sample" icon="sap-icon://document-text" press=".onLoadSample"
+                tooltip="Load a sample order with matching rules" />
+        </headerContent>
+
+        <content>
+            <MessageStrip
+                text="{/error}"
+                type="Error"
+                showIcon="true"
+                showCloseButton="true"
+                close=".onClearError"
+                visible="{= !!${/error} }"
+                class="sapUiSmallMarginBottom" />
+
+            <l:Grid defaultSpan="XL6 L6 M12 S12" hSpacing="1" vSpacing="1" containerQuery="true"
+                class="sapUiSmallMarginBottom">
+                <Panel expandable="false" class="editorPanel">
+                    <headerToolbar>
+                        <OverflowToolbar>
+                            <Title text="Source XML" level="H2" />
+                            <ToolbarSpacer />
+                            <Button icon="sap-icon://clear-all" type="Transparent"
+                                tooltip="Clear XML" press=".onClearXml" />
+                        </OverflowToolbar>
+                    </headerToolbar>
+                    <ce:CodeEditor
+                        id="xmlEditor"
+                        type="xml"
+                        value="{/xml}"
+                        height="340px"
+                        width="100%" />
+                </Panel>
+
+                <Panel expandable="false" class="editorPanel">
+                    <headerToolbar>
+                        <OverflowToolbar>
+                            <Title text="JSON output" level="H2" />
+                            <ToolbarSpacer />
+                            <Button icon="sap-icon://copy" type="Transparent"
+                                tooltip="Copy JSON to clipboard" press=".onCopyJson"
+                                enabled="{= !!${/json} }" />
+                            <Button icon="sap-icon://download" type="Transparent"
+                                tooltip="Download as .json file" press=".onDownloadJson"
+                                enabled="{= !!${/json} }" />
+                        </OverflowToolbar>
+                    </headerToolbar>
+                    <ce:CodeEditor
+                        id="jsonEditor"
+                        type="json"
+                        value="{/json}"
+                        editable="false"
+                        height="340px"
+                        width="100%" />
+                </Panel>
+            </l:Grid>
+
+            <MessageStrip
+                text="{/warningText}"
+                type="Warning"
+                showIcon="true"
+                visible="{= !!${/warningText} }"
+                class="sapUiSmallMarginBottom" />
+
+            <Panel expandable="true" expanded="true" class="sapUiSmallMarginBottom">
+                <headerToolbar>
+                    <OverflowToolbar>
+                        <Title text="Custom XML/JSON conversion rules" level="H2" />
+                        <ToolbarSpacer />
+                        <Button text="Add rule" icon="sap-icon://add" press=".onAddRule" />
+                    </OverflowToolbar>
+                </headerToolbar>
+                <Text
+                    text="Rules force single elements into JSON arrays and convert values to typed JSON. Match by element name (Item), relative path (Items/Item), or absolute path (/Order/Items/Item). Repeating elements always become arrays automatically."
+                    class="sapUiSmallMargin" />
+                <Table items="{/rules}"
+                    noDataText="No rules defined — output uses default conversion (all values as strings, arrays only for repeating elements).">
+                    <columns>
+                        <Column width="26%">
+                            <Text text="XML namespace (optional)" />
+                        </Column>
+                        <Column width="30%">
+                            <Text text="XPath / element name" />
+                        </Column>
+                        <Column width="12%" hAlign="Center">
+                            <Text text="Force array" />
+                        </Column>
+                        <Column width="22%">
+                            <Text text="JSON type" />
+                        </Column>
+                        <Column width="10%" hAlign="End">
+                            <Text text="" />
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem vAlign="Middle">
+                            <cells>
+                                <Input value="{namespace}" placeholder="(any namespace)" />
+                                <Input value="{path}"
+                                    placeholder="Item  ·  Items/Item  ·  /Order/Items/Item" />
+                                <CheckBox selected="{forceArray}" />
+                                <Select selectedKey="{type}" width="100%">
+                                    <items>
+                                        <core:Item key="None" text="(default: string)" />
+                                        <core:Item key="String" text="String" />
+                                        <core:Item key="Integer" text="Integer" />
+                                        <core:Item key="Decimal" text="Decimal" />
+                                        <core:Item key="Boolean" text="Boolean" />
+                                    </items>
+                                </Select>
+                                <Button icon="sap-icon://delete" type="Transparent"
+                                    tooltip="Delete rule" press=".onDeleteRule" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </Panel>
+
+            <Panel expandable="true" expanded="true" headerText="Conversion options">
+                <f:SimpleForm layout="ColumnLayout" columnsXL="3" columnsL="3" columnsM="2"
+                    editable="true">
+                    <f:content>
+                        <Label text="Strip outer element" />
+                        <CheckBox selected="{/options/stripOuter}"
+                            tooltip="Remove the XML root element so JSON starts at its children" />
+
+                        <Label text="Include XML attributes" />
+                        <CheckBox selected="{/options/includeAttributes}" />
+
+                        <Label text="Attribute prefix" />
+                        <Input value="{/options/attrPrefix}" width="6rem"
+                            enabled="{/options/includeAttributes}" />
+
+                        <Label text="Text key (mixed content)" />
+                        <Input value="{/options/textKey}" width="6rem"
+                            tooltip="JSON key for text of elements that also carry attributes or child elements" />
+
+                        <Label text="Empty elements" />
+                        <Select selectedKey="{/options/emptyMode}" width="14rem">
+                            <items>
+                                <core:Item key="empty" text="Keep as empty string &quot;&quot;" />
+                                <core:Item key="null" text="Convert to null" />
+                                <core:Item key="omit" text="Omit from output" />
+                            </items>
+                        </Select>
+
+                        <Label text="Indentation" />
+                        <Select selectedKey="{/options/indent}" width="14rem">
+                            <items>
+                                <core:Item key="2" text="2 spaces" />
+                                <core:Item key="4" text="4 spaces" />
+                                <core:Item key="0" text="Compact (no whitespace)" />
+                            </items>
+                        </Select>
+                    </f:content>
+                </f:SimpleForm>
+            </Panel>
+        </content>
+
+        <footer>
+            <OverflowToolbar>
+                <Text text="Runs entirely in your browser — no data leaves this page." />
+                <ToolbarSpacer />
+                <Button text="Convert" type="Emphasized" icon="sap-icon://process"
+                    press=".onConvert" />
+            </OverflowToolbar>
+        </footer>
+    </Page>
+
+</mvc:View>

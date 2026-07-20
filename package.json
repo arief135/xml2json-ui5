@@ -1,0 +1,37 @@
+{
+  "name": "xml2json-ui5",
+  "version": "0.0.1",
+  "description": "Client-side XML to JSON converter (SAPUI5) simulating SAP PI/PO REST adapter custom conversion rules",
+  "keywords": [
+    "ui5",
+    "openui5",
+    "sapui5"
+  ],
+  "main": "webapp/index.html",
+  "dependencies": {},
+  "devDependencies": {
+    "@ui5/cli": "^4.0.33",
+    "@sap/ux-ui5-tooling": "1",
+    "@sap-ux/eslint-plugin-fiori-tools": "^10.0.0",
+    "eslint": "^10",
+    "@sapui5/types": "~1.150.0",
+    "ui5-tooling-transpile": "^3.10.0",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "start": "fiori run --open \"test/flp.html#app-preview\"",
+    "start-local": "fiori run --config ./ui5-local.yaml --open \"test/flp.html#app-preview\"",
+    "build": "ui5 build --config=ui5.yaml --clean-dest --dest dist",
+    "lint": "eslint ./",
+    "ts-typecheck": "tsc --noEmit",
+    "prestart": "npm run ts-typecheck",
+    "prebuild": "npm run ts-typecheck",
+    "deploy": "fiori verify",
+    "deploy-config": "fiori add deploy-config",
+    "start-noflp": "fiori run --open \"/index.html?sap-ui-xx-viewCache=false\"",
+    "int-test": "fiori run --open \"test/integration/opaTests.qunit.html\"",
+    "start-variants-management": "fiori run --open \"/preview.html#app-preview\"",
+    "unit-test": "fiori run --open \"test/unit/unitTests.qunit.html\""
+  },
+  "sapuxLayer": "CUSTOMER_BASE"
+}
