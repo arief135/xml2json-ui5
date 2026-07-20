@@ -6,10 +6,8 @@
     "allowJs": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "moduleResolution": "node",
     "rootDir": "./webapp",
     "outDir": "./dist",
-    "baseUrl": "./",
     "paths": {
       "id/apnv/app/xml2jsonui5/*": [
         "./webapp/*"
@@ -23,7 +21,13 @@
     },
     "typeRoots": [
       "./node_modules/@types",
-      "./node_modules/@sapui5/types"
+      "./node_modules/@sapui5/types",
+      "./node_modules",
+    ],
+    "types": [
+      "node",
+      "@sapui5/types",
+      "qunit"
     ]
   },
   "include": [
